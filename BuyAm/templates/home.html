@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<!-- Image Section -->
+<div class="image-container">
+    <img src="{{ url_for('static', filename='back.png') }}" alt="Errand Image" class="top-image">
+</div>
+
+<!-- Welcome Content -->
+<div class="content">
+    <h1>Welcome to Kejetia!</h1>
+    <p>You dey hia monies?<br>
+        Turn your stuff into cool money!<br>
+     
+    </p>
+    
+    
+    <!-- Buttons -->
+    <button class="btn btn-signup mb-2"> <a class="nav-link" href="{{ url_for('register') }}">Register</a></button>
+    <button class="btn btn-login"><a class="nav-link" href="{{ url_for('login') }}">Login</a></button>
+</div>
+{% endblock %}

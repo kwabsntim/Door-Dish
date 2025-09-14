@@ -1,0 +1,41 @@
+{% extends "dashboard.html" %}
+
+{% block content %}
+<div class="product-grid">
+    {% for item in items %}
+    <div class="card product-card shadow-sm">
+        {{ item.name}}
+        <a href="{{ url_for('products', item_id=item.id) }}" style="text-decoration: none; color: inherit;">
+            {% if item.photo_filename %}
+            <img src="{{ url_for('static', filename='uploads/photos/' ~ item.photo_filename) }}" class="card-img-top"
+                alt="{{ item.category }}">
+            {% else %}
+            <img src="{{ url_for('static', filename='images/no-image.png') }}" class="card-img-top" alt="No image">
+            {% endif %}
+
+            <div class="card-body text-center">
+                <h6 class="card-title">{{ item.category }}</h6>
+
+                <!-- Category icon -->
+                <div class="info-text">
+                    <i class="bi bi-tags"></i>
+                    <span>{{ item.category }}</span>
+                </div>
+
+                <!-- Location icon -->
+                <div class="info-text">
+                    <i class="bi bi-geo-alt"></i>
+                    <span>{{ item.location }}</span>
+                </div>
+
+                {% if item.price %}
+                <p class="price">GH₵ {{ '%.2f'|format(item.price) }}</p>
+                {% endif %}
+            </div>
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+
+{% endblock %}

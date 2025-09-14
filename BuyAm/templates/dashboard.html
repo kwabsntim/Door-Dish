@@ -1,0 +1,70 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard-{% block title %}{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg custom-navbar sticky-top">
+        <div class="container d-flex justify-content-between align-items-center">
+    
+            <!-- Brand -->
+            <a class="navbar-brand d-flex align-items-center" href="/"> 
+                <img src="{{ url_for('static', filename='ecom.png') }}" alt="Logo" style="width: 40px; margin-right: 5px;">
+                <span class="text-white fw-bold">Kejetia</span>
+            </a>
+    
+            
+            <!-- DESKTOP ICONS -->
+            <div class="nav-icons desktop-only d-flex align-items-center gap-3">
+                <a href="{{ url_for('products') }}" class="icon-wrapper"><i class="fas fa-home"></i></a>
+                <a href="{{ url_for('search') }}" class="icon-wrapper"><i class="fas fa-search"></i></a>
+                <a href="{{ url_for('profile') }}" class="icon-wrapper"><i class="fas fa-shopping-cart"></i></a>
+                <a href="{{ url_for('profile') }}" class="icon-wrapper"><i class="fas fa-user-circle"></i></a>
+                <a href="{{ url_for('sell')}}" class="btn text-white fw-bold px-4 rounded" style="background-color: #0778d4;">SELL</a>
+            </div>
+            
+
+    
+        </div>
+    </nav>
+    <div class="main-content">
+        {% block content %}
+
+        <!-- This is where child templates will inject content -->
+        {% endblock %}
+    </div>
+
+
+    <div class="content">
+        <!-- Your page content goes here -->
+    </div>
+    <div class="bottom-nav">
+        <a href="{{ url_for('products') }}" class="bottom-nav-item {% if request.endpoint == 'home' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{{ url_for('search') }}" class="bottom-nav-item {% if request.endpoint == 'search' %}active{% endif %}">
+            <i class="fas fa-search"></i>
+            <span>Search</span>
+        </a>
+        <a href="{{ url_for('sell') }}" class="bottom-nav-item {% if request.endpoint == 'sell' %}active{% endif %}">
+            <i class="fas fa-plus-square"></i>
+            <span>Sell</span>
+        </a>
+        <a href="{{ url_for('saved') }}" class="bottom-nav-item {% if request.endpoint == 'saved' %}active{% endif %}">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+        </a>
+        <a href="{{ url_for('profile') }}" class="bottom-nav-item {% if request.endpoint == 'profile' %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!-- templates/profile.html -->
+{% extends "dashboard.html" %}
+
+{% block title %}Profile-{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <!-- Page content -->
+        <div class="container mt-5 d-flex justify-content-center">
+            <div class="card shadow-lg border-0" style="width: 100%; max-width: 500px; border-radius: 20px;">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-3">Hey there 👋, <strong>{{ user.username }}</strong>!</h2>
+                  
+    
+                    <ul class="list-group list-group-flush mb-4">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Username:</strong>
+                            <span>{{ user.username }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Email:</strong>
+                            <span>{{ user.email }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <strong>Last Login:</strong>
+                            <span>
+                                {{ user.last_login.strftime('%Y-%m-%d %H:%M:%S') if user.last_login else "Never" }}
+                            </span>
+                        </li>
+                    </ul>
+    
+                    <div class="d-grid">
+                        <a href="{{ url_for('logout') }}" class="btn btn-danger btn-lg rounded-pill">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="settings-grid">
+            <div class="settings-item">
+                <div class="icon-circle red"><i class="fas fa-info"></i></div>
+                <span>About Kejetia</span>
+            </div>
+            <div class="settings-item">
+                <div class="icon-circle teal"><i class="fas fa-question-circle"></i></div>
+                <span>Help and Support</span>
+            </div>
+            <div class="settings-item">
+                <div class="icon-circle lime"><i class="fas fa-play"></i></div>
+                <span>Confirm order</span>
+            </div>
+            <div class="settings-item">
+                <div class="icon-circle purple"><i class="fas fa-share-alt"></i></div>
+                <span>Share</span>
+            </div>
+            <div class="settings-item">
+                <div class="icon-circle orange"><i class="fas fa-gavel"></i></div>
+                <span>Legal policies</span>
+            </div>
+            <div class="settings-item">
+                <div class="icon-circle cyan"><i class="fas fa-star"></i></div>
+                <span>Rate us</span>
+            </div>
+        </div>
+    </div>
+    <footer class="footer mt-auto py-3 "></footer>
+        <div class="container text-center">
+            <p class="mb-1">&copy; 2025 Kejetia . All rights reserved.</p>
+            <ul class="list-inline">
+                <li class="list-inline-item"><a href="{{ url_for('profile') }}">Privacy Policy</a></li>
+                <li class="list-inline-item"><a href="{{ url_for('profile') }}">Terms of Service</a></li>
+                <li class="list-inline-item"><a href="{{ url_for('profile') }}">Contact Us</a></li>
+            </ul>
+        </div>
+    </footer>
+
+
+{% endblock %}

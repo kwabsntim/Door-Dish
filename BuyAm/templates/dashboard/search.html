@@ -1,0 +1,28 @@
+<!-- templates/profile.html -->
+{% extends "dashboard.html" %}
+
+{% block title %}Profile-{% endblock %}
+
+{% block content %}
+        <div class="search-container text-center text-white py-5">
+            <h3 class="mb-4">Lets help you find?</h3>
+            <form class="search-form d-flex justify-content-center flex-wrap gap-2" action="{{ url_for('search') }}" method="GET">
+                <select class="form-select w-auto" name="category">
+                    <option selected>All Categories</option>
+                    <option value="phones & Tablets">Phones & Tablets</option>
+                    <option value="fashion">Fashion</option>
+                    <option value="books">Education</option>
+                    <option value="electronics">Electronics</option>
+                </select>
+                <div class="search-box d-flex">
+                    <input type="text" class="form-control" placeholder="help me find..." name="query" />
+                    <button type="submit" class="btn search-icon">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+        <p>Your search is {{ query }}</p>
+        <p>its from the catergory {{ category }}</p>
+
+{% endblock %}

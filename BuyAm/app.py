@@ -137,7 +137,7 @@ def google_callback():
                 user = User(
                     username=username,
                     email=email,
-                    is_verified=True  # Gmail accounts are pre-verified
+                    is_verified=True
                 )
                 # Set a random password for OAuth users (they won't use it)
                 import secrets

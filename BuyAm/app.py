@@ -1,3 +1,5 @@
+from flask import Flask, redirect, url_for, session
+from authlib.integrations.flask_client import OAuth
 import os
 import smtplib
 from datetime import datetime, timedelta
@@ -19,19 +21,16 @@ from flask_mail import Mail, Message
 from flask_wtf.csrf import generate_csrf
 from models import db, User, PasswordResetToken, Item
  
-
-
-
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/door_dash_DB.db'
+
+
 db_path = os.path.join(os.path.dirname(__file__), 'instance', 'door_dash_DB.db')
 os.makedirs(os.path.dirname(db_path), exist_ok=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
-
-
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
@@ -54,6 +53,16 @@ migrate = Migrate(app, db)
 limiter = Limiter(app=app, key_func=get_remote_address)
 
 reset_serializer = URLSafeTimedSerializer(app.secret_key)
+
+# Configure OAuth
+oauth = OAuth(app)
+google = oauth.register(
+    name="google",
+    client_id=os.getenv("GOOGLE_CLIENT_ID"),
+    client_secret=os.getenv("GOOGLE_CLIENT_SECRET"),
+    server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+    client_kwargs={"scope": "openid email profile"}
+)
 
 
 @app.after_request
@@ -92,9 +101,76 @@ The Kejetia Team,market on the go!
 def home():
     return render_template('home.html')
 
+@app.route('/login/google')
+def google_login():
+    redirect_uri = url_for('google_callback', _external=True)
+    return google.authorize_redirect(redirect_uri)
+
+@app.route('/callback/google')
+def google_callback():
+    try:
+        token = google.authorize_access_token()
+        
+        # Option 1: Use userinfo endpoint instead of parsing ID token
+        resp = google.get('https://www.googleapis.com/oauth2/v2/userinfo', token=token)
+        user_info = resp.json()
+        
+        if user_info:
+            email = user_info['email']
+            name = user_info.get('name', '')
+            
+            # Check if user exists
+            user = User.query.filter_by(email=email).first()
+            
+            if not user:
+                # Create new user with Google account
+                # Generate a username from email if name is not available
+                username = name if name else email.split('@')[0]
+                
+                # Ensure username is unique
+                counter = 1
+                original_username = username
+                while User.query.filter_by(username=username).first():
+                    username = f"{original_username}{counter}"
+                    counter += 1
+                
+                user = User(
+                    username=username,
+                    email=email,
+                    is_verified=True  # Gmail accounts are pre-verified
+                )
+                # Set a random password for OAuth users (they won't use it)
+                import secrets
+                user.set_password(secrets.token_hex(16))
+                
+                db.session.add(user)
+                db.session.commit()
+                
+                flash(f'Welcome {name}! Your account has been created.', 'success')
+            else:
+                flash(f'Welcome back {user.username}!', 'success')
+            
+            # Log the user in
+            session.permanent = True
+            session['user_id'] = user.id
+            session['ip'] = request.remote_addr
+            session['user_agent'] = request.headers.get('User-Agent')
+            session['oauth_login'] = True  # Mark as OAuth login
+            
+            user.update_last_login()
+            
+            return redirect(url_for('products'))
+        else:
+            flash('Failed to get user information from Google.', 'danger')
+            return redirect(url_for('login'))
+            
+    except Exception as e:
+        app.logger.error(f"Google OAuth error: {str(e)}")
+        flash('Authentication failed. Please try again.', 'danger')
+        return redirect(url_for('login'))
+
 
 @app.route('/login', methods=['GET', 'POST'])
-#@limiter.limit("5/minute")
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -109,15 +185,16 @@ def login():
             session['user_id'] = user.id
             session['ip'] = request.remote_addr
             session['user_agent'] = request.headers.get('User-Agent')
+            session['oauth_login'] = False  # Mark as regular login
             user.reset_failed_logins()
             user.update_last_login()
-            db.session.commit()  # Added
+            db.session.commit()
             flash('Login successful!', 'success')
             return redirect(url_for('products'))
         else:
             if user:
                 user.increment_failed_login()
-                db.session.commit()  # Added
+                db.session.commit()
             flash('Invalid credentials', 'danger')
     return render_template('login.html', form=form)
 
@@ -280,6 +357,8 @@ def forgot_password():
     return render_template('forgot_password.html', form=form)
 
 
+
+# Add this before your routes
 @app.template_filter('regex_search_filter')  # Exact name used in template
 def regex_search_filter(s, pattern):
     import re

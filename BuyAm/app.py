@@ -26,7 +26,9 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/yourdatabase.db'
+db_path = os.path.join(os.path.dirname(__file__), 'instance', 'door_dash_DB.db')
+os.makedirs(os.path.dirname(db_path), exist_ok=True)
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('SQLALCHEMY_DATABASE_URI')
@@ -278,8 +280,6 @@ def forgot_password():
     return render_template('forgot_password.html', form=form)
 
 
-
-# Add this before your routes
 @app.template_filter('regex_search_filter')  # Exact name used in template
 def regex_search_filter(s, pattern):
     import re
